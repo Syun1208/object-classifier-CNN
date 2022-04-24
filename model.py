@@ -9,6 +9,7 @@ from torch.optim.lr_scheduler import StepLR
 from torchsummary import summary
 from dataloader import Image_Loader
 
+
 class Network(nn.Module):
     def __init__(self):
         super(Network, self).__init__()
@@ -17,23 +18,23 @@ class Network(nn.Module):
         self.conv3 = nn.Conv2d(16, 32, 3, 1, 1)
         self.dropout1 = nn.Dropout(0.5)
         self.dropout2 = nn.Dropout(0.25)
-        self.fc1 = nn.Linear(512, 4) # stride 1: 2304, 2:512
-        #self.fc2 = nn.Linear(128, 10)
+        self.fc1 = nn.Linear(512, 4)  # stride 1: 2304, 2:512
+        # self.fc2 = nn.Linear(128, 10)
 
     def forward(self, x):
-        x = self.conv1(x) #48.48.32     #32.32.8
+        x = self.conv1(x)  # 48.48.32     #32.32.8
         x = F.leaky_relu(x)
         x = F.max_pool2d(x, 2)
-        x = self.conv2(x) #24.24.32     #16.16.16
+        x = self.conv2(x)  # 24.24.32     #16.16.16
         x = F.leaky_relu(x)
         x = F.max_pool2d(x, 2)
-        x = self.conv3(x) #12.12.64     #8.8.32
+        x = self.conv3(x)  # 12.12.64     #8.8.32
         x = F.leaky_relu(x)
-        x = F.max_pool2d(x, 2) #6.6.64  #4.4.32
+        x = F.max_pool2d(x, 2)  # 6.6.64  #4.4.32
         # x = self.dropout1(x)
-        x = torch.flatten(x, 1) # 2304
+        x = torch.flatten(x, 1)  # 2304
         x = self.dropout1(x)
-        #x = torch.flatten(x, 1)
+        # x = torch.flatten(x, 1)
         x = self.fc1(x)
         # x = F.leaky_relu(x)
         # x = self.dropout2(x)
@@ -54,7 +55,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.item()))
+                       100. * batch_idx / len(train_loader), loss.item()))
             if args.dry_run:
                 break
 
@@ -83,15 +84,15 @@ def main():
     batch_size = 16
 
     # Load data for training
-    img_size =[64,64]
-    train_data = Image_Loader(root_path='./data_train.csv',image_size= img_size, transforms_data=True)
+    img_size = [64, 64]
+    train_data = Image_Loader(root_path='train.csv', image_size=img_size, transforms_data=True)
     # Load data for testing
-    test_data = Image_Loader(root_path='./data_test.csv',image_size= img_size,   transforms_data=True)
+    test_data = Image_Loader(root_path='test.csv', image_size=img_size, transforms_data=True)
 
     total_train_data = len(train_data)
     total_test_data = len(test_data)
 
-    #print(train_data, total_test_data)
+    # print(train_data, total_test_data)
 
     # Generate the batch in each iteration for training and testing
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -124,11 +125,11 @@ def main():
 
     torch.manual_seed(args.seed)
 
-    #device = torch.device("cuda" if use_cuda else "cpu")
+    # device = torch.device("cuda" if use_cuda else "cpu")
     device = torch.device("cpu")
     model = Network().to(device)
     print(model)
-    summary(model, (3, 64, 64)) #summary(your_model, input_size=(channels, H, W))
+    summary(model, (3, 64, 64))  # summary(your_model, input_size=(channels, H, W))
 
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
