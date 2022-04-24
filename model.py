@@ -16,10 +16,10 @@ class Network(nn.Module):
         self.conv1 = nn.Conv2d(3, 8, 3, 2, 1)
         self.conv2 = nn.Conv2d(8, 16, 3, 1, 1)
         self.conv3 = nn.Conv2d(16, 32, 3, 1, 1)
-        self.dropout1 = nn.Dropout(0.5)
-        self.dropout2 = nn.Dropout(0.25)
-        self.fc1 = nn.Linear(512, 4)  # stride 1: 2304, 2:512
-        # self.fc2 = nn.Linear(128, 10)
+        self.dropout1 = nn.Dropout(0.2)
+        self.dropout2 = nn.Dropout(0.2)
+        self.fc1 = nn.Linear(512, 128)  # stride 1: 2304, 2:512
+        self.fc2 = nn.Linear(128, 7)
 
     def forward(self, x):
         x = self.conv1(x)  # 48.48.32     #32.32.8
@@ -36,9 +36,9 @@ class Network(nn.Module):
         x = self.dropout1(x)
         # x = torch.flatten(x, 1)
         x = self.fc1(x)
-        # x = F.leaky_relu(x)
-        # x = self.dropout2(x)
-        # x = self.fc2(x)
+        x = F.leaky_relu(x)
+        x = self.dropout2(x)
+        x = self.fc2(x)
         output = F.log_softmax(x, dim=1)
         return output
 
@@ -46,11 +46,10 @@ class Network(nn.Module):
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
-        target = target.type(torch.LongTensor)
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
-        loss = F.nll_loss(output, target)
+        loss = F.cross_entropy(output, target)
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
@@ -67,10 +66,9 @@ def test(model, device, test_loader):
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
-            target = target.type(torch.LongTensor)
             data, target = data.to(device), target.to(device)
             output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
+            test_loss += F.cross_entropy(output, target, reduction='sum').item()  # sum up batch loss
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
             correct += pred.eq(target.view_as(pred)).sum().item()
 
@@ -103,8 +101,8 @@ def main():
 
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
-                        help='input batch size for training (default: 64)')
+    # parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+    #                     help='input batch size for training (default: 64)')
     # parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
     #                     help='input batch size for testing (default: 1000)')
     parser.add_argument('--epochs', type=int, default=14, metavar='N',
