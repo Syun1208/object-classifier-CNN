@@ -8,13 +8,13 @@ import torch
 import numpy as np
 
 class Image_Loader(Dataset):
-    def __init__(self, root_path='./data_train.csv', image_size=[48, 48], transforms_data=True):
+    def __init__(self, root_path='train.csv', image_size=[64, 64], transforms_data=True):
         
         self.data_path = pd.read_csv(root_path)
         self.image_size = image_size
         self.num_images = len(self.data_path)
         self.transforms_data = transforms_data
-        
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     def __len__(self):
         return self.num_images
 
