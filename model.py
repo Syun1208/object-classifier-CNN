@@ -46,6 +46,7 @@ class Network(nn.Module):
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
+        target = target.type(torch.LongTensor)
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
@@ -66,6 +67,7 @@ def test(model, device, test_loader):
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
+            target = target.type(torch.LongTensor)
             data, target = data.to(device), target.to(device)
             output = model(data)
             test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
@@ -80,6 +82,7 @@ def test(model, device, test_loader):
 
 
 def main():
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # Default value
     batch_size = 16
 
@@ -126,7 +129,7 @@ def main():
     torch.manual_seed(args.seed)
 
     # device = torch.device("cuda" if use_cuda else "cpu")
-    device = torch.device("cpu")
+    # device = torch.device("cpu")
     model = Network().to(device)
     print(model)
     summary(model, (3, 64, 64))  # summary(your_model, input_size=(channels, H, W))
@@ -144,4 +147,5 @@ def main():
 
 
 if __name__ == '__main__':
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     main()
