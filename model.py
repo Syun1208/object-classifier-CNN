@@ -82,15 +82,15 @@ def test(model, device, test_loader):
 
 
 def main():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # Default value
     batch_size = 16
 
     # Load data for training
     img_size = [64, 64]
-    train_data = Image_Loader(root_path='train.csv', image_size=img_size, transforms_data=True)
+    train_data = Image_Loader(root_path='/content/data_train.csv', image_size=img_size, transforms_data=True)
     # Load data for testing
-    test_data = Image_Loader(root_path='test.csv', image_size=img_size, transforms_data=True)
+    test_data = Image_Loader(root_path='/content/data_test.csv', image_size=img_size, transforms_data=True)
 
     total_train_data = len(train_data)
     total_test_data = len(test_data)
@@ -103,8 +103,8 @@ def main():
 
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    # parser.add_argument('--batch-size', type=int, default=64, metavar='N',
-    #                     help='input batch size for training (default: 64)')
+    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+                        help='input batch size for training (default: 64)')
     # parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
     #                     help='input batch size for testing (default: 1000)')
     parser.add_argument('--epochs', type=int, default=14, metavar='N',
@@ -143,9 +143,8 @@ def main():
         scheduler.step()
 
     if args.save_model:
-        torch.save(model.state_dict(), "cnn.pt")
+        torch.save(model.state_dict(), "/content/cnn.pt")
 
 
 if __name__ == '__main__':
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     main()
